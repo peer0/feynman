@@ -210,10 +210,10 @@
   height: 28px;
   padding: 0;
   margin: 0;
-  border: none;
+  border: 1px solid var(--border);
   border-radius: 0.25rem;
   color: var(--muted-foreground);
-  background: var(--muted);
+  background: var(--background);
   opacity: 0;
   transition: opacity 0.15s, color 0.15s;
   cursor: pointer;
