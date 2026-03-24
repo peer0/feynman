@@ -49,8 +49,6 @@ test("normalizeFeynmanSettings prunes the legacy slow default package set", () =
 				packages: [
 					...CORE_PACKAGE_SOURCES,
 					"npm:pi-generative-ui",
-					"npm:@kaiserlich-dev/pi-session-search",
-					"npm:@samfp/pi-memory",
 				],
 			},
 			null,
@@ -68,8 +66,8 @@ test("normalizeFeynmanSettings prunes the legacy slow default package set", () =
 });
 
 test("optional package presets map friendly aliases", () => {
-	assert.deepEqual(getOptionalPackagePresetSources("memory"), ["npm:@samfp/pi-memory"]);
+	assert.deepEqual(getOptionalPackagePresetSources("memory"), undefined);
 	assert.deepEqual(getOptionalPackagePresetSources("ui"), ["npm:pi-generative-ui"]);
-	assert.deepEqual(getOptionalPackagePresetSources("search"), ["npm:@kaiserlich-dev/pi-session-search"]);
+	assert.deepEqual(getOptionalPackagePresetSources("search"), undefined);
 	assert.equal(shouldPruneLegacyDefaultPackages(["npm:custom"]), false);
 });

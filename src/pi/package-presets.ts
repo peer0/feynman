@@ -10,7 +10,9 @@ export const CORE_PACKAGE_SOURCES = [
 	"npm:pi-mermaid",
 	"npm:@aliou/pi-processes",
 	"npm:pi-zotero",
+	"npm:@kaiserlich-dev/pi-session-search",
 	"npm:pi-schedule-prompt",
+	"npm:@samfp/pi-memory",
 	"npm:@tmustier/pi-ralph-wiggum",
 ] as const;
 
@@ -19,25 +21,11 @@ export const OPTIONAL_PACKAGE_PRESETS = {
 		description: "Interactive Glimpse UI widgets.",
 		sources: ["npm:pi-generative-ui"],
 	},
-	memory: {
-		description: "Cross-session memory and preference recall.",
-		sources: ["npm:@samfp/pi-memory"],
-	},
-	"session-search": {
-		description: "Indexed session recall with SQLite-backed search.",
-		sources: ["npm:@kaiserlich-dev/pi-session-search"],
-	},
-	"all-extras": {
-		description: "Install all optional packages.",
-		sources: ["npm:pi-generative-ui", "npm:@samfp/pi-memory", "npm:@kaiserlich-dev/pi-session-search"],
-	},
 } as const;
 
 const LEGACY_DEFAULT_PACKAGE_SOURCES = [
 	...CORE_PACKAGE_SOURCES,
 	"npm:pi-generative-ui",
-	"npm:@kaiserlich-dev/pi-session-search",
-	"npm:@samfp/pi-memory",
 ] as const;
 
 export type OptionalPackagePresetName = keyof typeof OPTIONAL_PACKAGE_PRESETS;
@@ -65,9 +53,6 @@ export function getOptionalPackagePresetSources(name: string): string[] | undefi
 	const normalized = name.trim().toLowerCase();
 	if (normalized === "ui") {
 		return [...OPTIONAL_PACKAGE_PRESETS["generative-ui"].sources];
-	}
-	if (normalized === "search") {
-		return [...OPTIONAL_PACKAGE_PRESETS["session-search"].sources];
 	}
 
 	const preset = OPTIONAL_PACKAGE_PRESETS[normalized as OptionalPackagePresetName];

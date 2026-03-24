@@ -1,5 +1,6 @@
 ---
 import ThemeToggle from './ThemeToggle.astro';
+import AsciiLogo from './AsciiLogo.astro';
 
 interface Props {
   active?: 'home' | 'docs';
@@ -10,7 +11,9 @@ const { active = 'home' } = Astro.props;
 
 <nav class="sticky top-0 z-50 bg-bg">
   <div class="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-    <a href="/" class="text-xl font-bold text-accent tracking-tight">Feynman</a>
+    <a href="/" class="hover:opacity-80 transition-opacity" aria-label="Feynman">
+      <AsciiLogo size="nav" />
+    </a>
     <div class="flex items-center gap-6">
       <a href="/docs/getting-started/installation"
         class:list={["text-sm transition-colors", active === 'docs' ? 'text-text-primary' : 'text-text-muted hover:text-text-primary']}>

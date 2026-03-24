@@ -2,6 +2,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { FEYNMAN_ASCII_LOGO_HTML } from "../logo.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const appRoot = resolve(here, "..");
@@ -90,14 +91,27 @@ function ensurePackageWorkspace() {
 		"utf8",
 	);
 
-	console.log("[feynman] installing research packages...");
-	const result = spawnSync("npm", ["install", "--prefer-offline", "--no-audit", "--no-fund", "--prefix", workspaceDir, ...packageSpecs], {
-		stdio: "inherit",
+	const frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+	let frame = 0;
+	const start = Date.now();
+	const spinner = setInterval(() => {
+		const elapsed = Math.round((Date.now() - start) / 1000);
+		process.stderr.write(`\r${frames[frame++ % frames.length]} setting up feynman... ${elapsed}s`);
+	}, 80);
+
+	const result = spawnSync("npm", ["install", "--prefer-offline", "--no-audit", "--no-fund", "--loglevel", "error", "--prefix", workspaceDir, ...packageSpecs], {
+		stdio: ["ignore", "ignore", "pipe"],
 		timeout: 300000,
 	});
 
+	clearInterval(spinner);
+	const elapsed = Math.round((Date.now() - start) / 1000);
+
 	if (result.status !== 0) {
-		console.warn("[feynman] warning: package install failed, Pi will retry on first launch");
+		process.stderr.write(`\r✗ setup failed (${elapsed}s)\n`);
+		if (result.stderr?.length) process.stderr.write(result.stderr);
+	} else {
+		process.stderr.write(`\r✓ feynman ready (${elapsed}s)\n`);
 	}
 }
 
@@ -351,10 +365,31 @@ if (oauthPagePath && existsSync(oauthPagePath)) {
 	let source = readFileSync(oauthPagePath, "utf8");
 	const piLogo = 'const LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" aria-hidden="true"><path fill="#fff" fill-rule="evenodd" d="M165.29 165.29 H517.36 V400 H400 V517.36 H282.65 V634.72 H165.29 Z M282.65 282.65 V400 H400 V282.65 Z"/><path fill="#fff" d="M517.36 400 H634.72 V634.72 H517.36 Z"/></svg>`;';
 	if (source.includes(piLogo)) {
-		const feynmanLogo = 'const LOGO_SVG = `<span style="font-size:32px;font-weight:700;color:#10b981;font-family:system-ui,sans-serif;letter-spacing:-0.02em">feynman</span>`;';
+		const feynmanLogo = `const LOGO_SVG = \`${FEYNMAN_ASCII_LOGO_HTML}\`;`;
 		source = source.replace(piLogo, feynmanLogo);
 		writeFileSync(oauthPagePath, source, "utf8");
 	}
+}
+
+const alphaHubAuthPath = findPackageRoot("@companion-ai/alpha-hub")
+	? resolve(findPackageRoot("@companion-ai/alpha-hub"), "src", "lib", "auth.js")
+	: null;
+
+if (alphaHubAuthPath && existsSync(alphaHubAuthPath)) {
+	let source = readFileSync(alphaHubAuthPath, "utf8");
+	const callbackStyle = `style="font-family:system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;background:#050a08;color:#f0f5f2"`;
+	const logoHtml = FEYNMAN_ASCII_LOGO_HTML.replace('color:#10b981', 'color:#34d399');
+	const successPage = `<html><body ${callbackStyle}>${logoHtml}<h2 style="color:#34d399;margin-top:24px">Logged in</h2><p style="color:#8aaa9a">You can close this tab.</p></body></html>`;
+	const errorPage = `<html><body ${callbackStyle}>${logoHtml}<h2 style="color:#ef4444;margin-top:24px">Login failed</h2><p style="color:#8aaa9a">You can close this tab.</p></body></html>`;
+	const oldSuccess = `'<html><body><h2>Logged in to Alpha Hub</h2><p>You can close this tab.</p></body></html>'`;
+	const oldError = `'<html><body><h2>Login failed</h2><p>You can close this tab.</p></body></html>'`;
+	if (source.includes(oldSuccess)) {
+		source = source.replace(oldSuccess, `'${successPage}'`);
+	}
+	if (source.includes(oldError)) {
+		source = source.replace(oldError, `'${errorPage}'`);
+	}
+	writeFileSync(alphaHubAuthPath, source, "utf8");
 }
 
 if (existsSync(piMemoryPath)) {

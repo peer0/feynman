@@ -1,0 +1,12 @@
+export const FEYNMAN_ASCII_LOGO = [
+	"███████╗███████╗██╗   ██╗███╗   ██╗███╗   ███╗ █████╗ ███╗   ██╗",
+	"██╔════╝██╔════╝╚██╗ ██╔╝████╗  ██║████╗ ████║██╔══██╗████╗  ██║",
+	"█████╗  █████╗   ╚████╔╝ ██╔██╗ ██║██╔████╔██║███████║██╔██╗ ██║",
+	"██╔══╝  ██╔══╝    ╚██╔╝  ██║╚██╗██║██║╚██╔╝██║██╔══██║██║╚██╗██║",
+	"██║     ███████╗   ██║   ██║ ╚████║██║ ╚═╝ ██║██║  ██║██║ ╚████║",
+	"╚═╝     ╚══════╝   ╚═╝   ╚═╝  ╚═══╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝",
+];
+
+export const FEYNMAN_ASCII_LOGO_TEXT = FEYNMAN_ASCII_LOGO.join("\n");
+
+export const FEYNMAN_ASCII_LOGO_HTML = `<pre style="font-size:8px;line-height:1.15;font-weight:700;color:#10b981;font-family:monospace;white-space:pre;margin:0">${FEYNMAN_ASCII_LOGO_TEXT}</pre>`;
