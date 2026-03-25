@@ -25,23 +25,33 @@ irm https://feynman.is/install.ps1 | iex
 
 This installs the Windows runtime bundle under `%LOCALAPPDATA%\Programs\feynman`, adds its launcher to your user `PATH`, and lets you re-run the installer at any time to update.
 
-## pnpm / bun
+## pnpm
 
-If you already have Node.js 20.18.1+ installed, you can install Feynman globally via `pnpm` or `bun`:
+If you already have Node.js 20.18.1+ installed, you can install Feynman globally via `pnpm`:
 
 ```bash
 pnpm add -g @companion-ai/feynman
-bun add -g @companion-ai/feynman
 ```
 
 Or run it directly without installing:
 
 ```bash
 pnpm dlx @companion-ai/feynman
+```
+
+## bun
+
+```bash
+bun add -g @companion-ai/feynman
+```
+
+Or run it directly without installing:
+
+```bash
 bunx @companion-ai/feynman
 ```
 
-The package-manager distribution ships the same core application but depends on Node.js being present on your system. The standalone installer is preferred because it bundles its own Node runtime and works without a separate Node installation.
+Both package-manager distributions ship the same core application but depend on Node.js being present on your system. The standalone installer is preferred because it bundles its own Node runtime and works without a separate Node installation.
 
 ## Post-install setup
 

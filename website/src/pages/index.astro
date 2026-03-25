@@ -57,33 +57,36 @@ const installCommands = [
       </div>
 
       <div class="flex w-full max-w-3xl flex-col items-center gap-4">
-        <div class="flex flex-wrap items-center justify-center gap-2">
-          {installCommands.map((entry) => (
-            <button
-              class:list={[
-                "install-toggle rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
-                entry.label === installCommands[0].label
-                  ? "border-foreground bg-foreground text-background"
-                  : "border-border bg-background text-muted-foreground hover:text-foreground",
-              ]}
-              data-command={entry.command}
-              aria-label={`Show ${entry.label} install command`}
-            >
-              {entry.label}
-            </button>
-          ))}
+        <div class="flex w-full flex-col">
+          <div class="flex self-start">
+            {installCommands.map((entry, i) => (
+              <button
+                class:list={[
+                  "install-toggle px-4 py-2 text-sm font-medium transition-colors cursor-pointer",
+                  i === 0 ? "rounded-tl-lg" : "",
+                  i === installCommands.length - 1 ? "rounded-tr-lg" : "",
+                  entry.label === installCommands[0].label
+                    ? "bg-muted text-foreground"
+                    : "bg-muted/30 text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                ]}
+                data-command={entry.command}
+                aria-label={`Show ${entry.label} install command`}
+              >
+                {entry.label}
+              </button>
+            ))}
+          </div>
+          <button
+            id="install-cmd"
+            class="group flex w-full items-center justify-between gap-3 rounded-b-lg rounded-tr-lg bg-muted px-4 py-3 text-left font-mono text-sm transition-colors hover:bg-muted/80 cursor-pointer"
+            data-command={installCommands[0].command}
+            aria-label="Copy install command"
+          >
+            <span id="install-command" class="min-w-0 truncate">{installCommands[0].command}</span>
+            <svg id="install-copy" class="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg id="install-check" class="hidden size-4 shrink-0 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+          </button>
         </div>
-
-        <button
-          id="install-cmd"
-          class="group flex w-full items-center justify-between gap-3 rounded-lg bg-muted px-4 py-3 text-left font-mono text-sm transition-colors hover:bg-muted/80 cursor-pointer"
-          data-command={installCommands[0].command}
-          aria-label="Copy install command"
-        >
-          <span id="install-command" class="min-w-0 truncate">{installCommands[0].command}</span>
-          <svg id="install-copy" class="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          <svg id="install-check" class="hidden size-4 shrink-0 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-        </button>
 
         <div class="flex items-center gap-3">
           <a href="/docs/getting-started/installation">
@@ -214,50 +217,52 @@ const installCommands = [
     </section>
 
   </div>
+
+  <script is:inline>
+    (function () {
+      function init() {
+        var toggles = Array.from(document.querySelectorAll(".install-toggle"))
+        var btn = document.getElementById("install-cmd")
+        var text = document.getElementById("install-command")
+        var copyIcon = document.getElementById("install-copy")
+        var checkIcon = document.getElementById("install-check")
+        if (!btn || !text || !copyIcon || !checkIcon) return
+
+        toggles.forEach(function (toggle) {
+          if (toggle._b) return
+          toggle._b = true
+          toggle.addEventListener("click", function () {
+            var cmd = toggle.getAttribute("data-command")
+            if (!cmd) return
+            btn.setAttribute("data-command", cmd)
+            text.textContent = cmd
+            toggles.forEach(function (t) {
+              t.classList.remove("bg-muted", "text-foreground")
+              t.classList.add("bg-muted/30", "text-muted-foreground", "hover:text-foreground", "hover:bg-muted/50")
+            })
+            toggle.classList.remove("bg-muted/30", "text-muted-foreground", "hover:text-foreground", "hover:bg-muted/50")
+            toggle.classList.add("bg-muted", "text-foreground")
+          })
+        })
+
+        if (!btn._b) {
+          btn._b = true
+          btn.addEventListener("click", function () {
+            var cmd = btn.getAttribute("data-command")
+            if (!cmd) return
+            navigator.clipboard.writeText(cmd).then(function () {
+              copyIcon.classList.add("hidden")
+              checkIcon.classList.remove("hidden")
+              setTimeout(function () {
+                copyIcon.classList.remove("hidden")
+                checkIcon.classList.add("hidden")
+              }, 2000)
+            })
+          })
+        }
+      }
+      init()
+      document.addEventListener("astro:after-swap", init)
+    })()
+  </script>
 </Layout>
-
-<script is:inline>
-  function initCopyBtn() {
-    var toggles = Array.from(document.querySelectorAll(".install-toggle"))
-    var commandBtn = document.getElementById("install-cmd")
-    var commandText = document.getElementById("install-command")
-    var copyLabel = document.getElementById("install-copy")
-    var checkLabel = document.getElementById("install-check")
-
-    toggles.forEach(function (toggle) {
-      if (toggle._toggleBound) return
-      toggle._toggleBound = true
-      toggle.addEventListener("click", function () {
-        var command = toggle.getAttribute("data-command")
-        if (!commandBtn || !commandText || !command) return
-        commandBtn.setAttribute("data-command", command)
-        commandText.textContent = command
-        toggles.forEach(function (item) {
-          item.classList.remove("border-foreground", "bg-foreground", "text-background")
-          item.classList.add("border-border", "bg-background", "text-muted-foreground")
-        })
-        toggle.classList.remove("border-border", "bg-background", "text-muted-foreground")
-        toggle.classList.add("border-foreground", "bg-foreground", "text-background")
-      })
-    })
-
-    if (commandBtn && !commandBtn._copyBound) {
-      commandBtn._copyBound = true
-      commandBtn.addEventListener("click", function () {
-        var command = commandBtn.getAttribute("data-command")
-        if (!command) return
-        navigator.clipboard.writeText(command).then(function () {
-          if (!copyLabel || !checkLabel) return
-          copyLabel.classList.add("hidden")
-          checkLabel.classList.remove("hidden")
-          setTimeout(function () {
-            copyLabel.classList.remove("hidden")
-            checkLabel.classList.add("hidden")
-          }, 2000)
-        })
-      })
-    })
-  }
-  initCopyBtn()
-  document.addEventListener("astro:after-swap", initCopyBtn)
-</script>
