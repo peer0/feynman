@@ -42,6 +42,33 @@ For API key providers, you are prompted to paste your key directly:
 
 Keys are encrypted at rest and never sent anywhere except the provider's API endpoint.
 
+### Local models: Ollama, LM Studio, vLLM
+
+If you want to use a model running locally, choose the API-key flow and then select:
+
+```text
+Custom provider (baseUrl + API key)
+```
+
+For Ollama, the typical settings are:
+
+```text
+API mode: openai-completions
+Base URL: http://localhost:11434/v1
+Authorization header: No
+Model ids: llama3.1:8b
+API key: local
+```
+
+That same custom-provider flow also works for other OpenAI-compatible local servers such as LM Studio or vLLM. After saving the provider, run:
+
+```bash
+feynman model list
+feynman model set <provider>/<model-id>
+```
+
+to confirm the local model is available and make it the default.
+
 ## Stage 3: Optional packages
 
 Feynman's core ships with the essentials, but some features require additional packages. The wizard asks if you want to install optional presets:

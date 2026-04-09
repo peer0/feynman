@@ -29,6 +29,8 @@ The one-line installer fetches the latest tagged release. To pin a version, pass
 
 If you install via `pnpm` or `bun` instead of the standalone bundle, Feynman requires Node.js `20.19.0` or newer.
 
+Local models are supported through the custom-provider flow. For Ollama, run `feynman setup`, choose `Custom provider (baseUrl + API key)`, use `openai-completions`, and point it at `http://localhost:11434/v1`.
+
 ### Skills Only
 
 If you want just the research skills without the full terminal app:
