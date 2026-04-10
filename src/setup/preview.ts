@@ -42,6 +42,14 @@ export function setupPreviewDependencies(): PreviewSetupResult {
 				return { status: "installed", message: "Preview dependency installed: pandoc (via apt)" };
 			}
 		}
+
+		const dnfPath = resolveExecutable("dnf");
+		if (dnfPath) {
+			const result = spawnSync(dnfPath, ["install", "-y", "pandoc"], { stdio: "inherit" });
+			if (result.status === 0) {
+				return { status: "installed", message: "Preview dependency installed: pandoc (via dnf)" };
+			}
+		}
 	}
 
 	return {
