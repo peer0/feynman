@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { pathToFileURL } from "node:url";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 import { applyFeynmanPackageManagerEnv, buildPiArgs, buildPiEnv, resolvePiPaths, toNodeImportSpecifier } from "../src/pi/runtime.js";
 
@@ -117,4 +120,93 @@ test("toNodeImportSpecifier converts absolute preload paths to file URLs", () =>
 		pathToFileURL("/repo/feynman/dist/system/promise-polyfill.js").href,
 	);
 	assert.equal(toNodeImportSpecifier("tsx"), "tsx");
+});
+
+// ---------- Three-file system-prompt concat tests ----------
+
+function makeTempAppRoot(): string {
+	const tmp = mkdtempSync(join(tmpdir(), "feynman-test-"));
+	// buildPiArgs references these paths, so they must exist on disk
+	mkdirSync(join(tmp, ".feynman"), { recursive: true });
+	mkdirSync(join(tmp, "extensions"), { recursive: true });
+	writeFileSync(join(tmp, "extensions", "research-tools.ts"), "");
+	mkdirSync(join(tmp, "prompts"), { recursive: true });
+	return tmp;
+}
+
+test("buildPiArgs concatenates SYSTEM + PERSONA + FOCUS in order with separator", () => {
+	const tmp = makeTempAppRoot();
+	try {
+		writeFileSync(join(tmp, ".feynman", "SYSTEM.md"), "system-block");
+		writeFileSync(join(tmp, ".feynman", "PERSONA.md"), "persona-block");
+		writeFileSync(join(tmp, ".feynman", "FOCUS.md"), "focus-block");
+
+		const args = buildPiArgs({
+			appRoot: tmp,
+			workingDir: "/workspace",
+			sessionDir: "/sessions",
+			feynmanAgentDir: "/home/.feynman/agent",
+			initialPrompt: "hello",
+		});
+
+		const idx = args.indexOf("--system-prompt");
+		assert.ok(idx !== -1, "expected --system-prompt in args");
+		const prompt = args[idx + 1];
+		assert.equal(
+			prompt,
+			"system-block\n\n---\n\npersona-block\n\n---\n\nfocus-block",
+		);
+	} finally {
+		rmSync(tmp, { recursive: true, force: true });
+	}
+});
+
+test("buildPiArgs with only SYSTEM.md is backwards compatible", () => {
+	const tmp = makeTempAppRoot();
+	try {
+		writeFileSync(join(tmp, ".feynman", "SYSTEM.md"), "system-only");
+
+		const args = buildPiArgs({
+			appRoot: tmp,
+			workingDir: "/workspace",
+			sessionDir: "/sessions",
+			feynmanAgentDir: "/home/.feynman/agent",
+			initialPrompt: "hello",
+		});
+
+		const idx = args.indexOf("--system-prompt");
+		assert.ok(idx !== -1, "expected --system-prompt in args");
+		const prompt = args[idx + 1];
+		assert.equal(prompt, "system-only");
+		assert.ok(!prompt.includes("persona"), "should not contain persona content");
+		assert.ok(!prompt.includes("focus"), "should not contain focus content");
+	} finally {
+		rmSync(tmp, { recursive: true, force: true });
+	}
+});
+
+test("buildPiArgs with SYSTEM + PERSONA separates parts with --- separator", () => {
+	const tmp = makeTempAppRoot();
+	try {
+		writeFileSync(join(tmp, ".feynman", "SYSTEM.md"), "AAA");
+		writeFileSync(join(tmp, ".feynman", "PERSONA.md"), "BBB");
+
+		const args = buildPiArgs({
+			appRoot: tmp,
+			workingDir: "/workspace",
+			sessionDir: "/sessions",
+			feynmanAgentDir: "/home/.feynman/agent",
+			initialPrompt: "hello",
+		});
+
+		const idx = args.indexOf("--system-prompt");
+		assert.ok(idx !== -1, "expected --system-prompt in args");
+		const prompt = args[idx + 1];
+		const parts = prompt.split("\n\n---\n\n");
+		assert.equal(parts.length, 2, "expected exactly two parts separated by ---");
+		assert.equal(parts[0], "AAA");
+		assert.equal(parts[1], "BBB");
+	} finally {
+		rmSync(tmp, { recursive: true, force: true });
+	}
 });
