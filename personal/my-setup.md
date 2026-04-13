@@ -202,6 +202,26 @@ The `working dir` line confirms CWD pinning works. Stress-tested by
 running `cd /tmp && feynman doctor` — output still shows the project root
 as the working directory.
 
+## 청람 (Cheongram) personality layer
+
+Three-file personality system layered on top of Feynman:
+
+- `.feynman/SYSTEM.md` — upstream research rules (unchanged)
+- `.feynman/PERSONA.md` — 청람 identity, language policy (Korean default +
+  English fallback), lab metaphor, anti-sycophancy rules, contribution-first
+  paper reading, cross-discipline rules (ML × SE), values
+- `.feynman/FOCUS.md` — 6-month variable: research focus keywords, possible
+  drifts, active seeds. Hand-edit this file when focus shifts.
+
+`src/pi/runtime.ts` concatenates all three files (with `\n\n---\n\n`
+separator) before passing to Pi as `--system-prompt`. If PERSONA.md or
+FOCUS.md are absent, behavior degrades gracefully to upstream-only.
+
+The four subagent files (`.feynman/agents/*.md`) have Korean preambles
+identifying them as 청람's lab peers.
+
+Design spec: `personal/designs/2026-04-10-cheongram-personality.md`
+
 ## Known issues and maintenance notes
 
 **The Chrome for Testing version is pinned in the wrapper.** The
