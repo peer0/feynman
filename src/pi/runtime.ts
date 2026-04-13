@@ -44,6 +44,8 @@ export function resolvePiPaths(appRoot: string) {
 		researchToolsPath: resolve(appRoot, "extensions", "research-tools.ts"),
 		promptTemplatePath: resolve(appRoot, "prompts"),
 		systemPromptPath: resolve(appRoot, ".feynman", "SYSTEM.md"),
+		personaPath: resolve(appRoot, ".feynman", "PERSONA.md"),
+		focusPath: resolve(appRoot, ".feynman", "FOCUS.md"),
 		piWorkspaceNodeModulesPath: resolve(appRoot, ".feynman", "npm", "node_modules"),
 		nodeModulesBinPath: resolve(appRoot, "node_modules", ".bin"),
 	};
@@ -80,8 +82,18 @@ export function buildPiArgs(options: PiRuntimeOptions): string[] {
 		paths.promptTemplatePath,
 	];
 
+	const systemPromptParts: string[] = [];
 	if (existsSync(paths.systemPromptPath)) {
-		args.push("--system-prompt", readFileSync(paths.systemPromptPath, "utf8"));
+		systemPromptParts.push(readFileSync(paths.systemPromptPath, "utf8"));
+	}
+	if (existsSync(paths.personaPath)) {
+		systemPromptParts.push(readFileSync(paths.personaPath, "utf8"));
+	}
+	if (existsSync(paths.focusPath)) {
+		systemPromptParts.push(readFileSync(paths.focusPath, "utf8"));
+	}
+	if (systemPromptParts.length > 0) {
+		args.push("--system-prompt", systemPromptParts.join("\n\n---\n\n"));
 	}
 
 	if (options.mode) {
