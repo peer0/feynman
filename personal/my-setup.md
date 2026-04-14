@@ -93,13 +93,49 @@ A bash wrapper that exposes `feynman` on PATH:
   - Rebuild failure is non-fatal: the agent still launches, only memory
     tools are degraded.
 
-### `~/.local/bin/cheongram` — aliased launcher
+### `~/.local/bin/cheongram` — project-targeted launcher
 
-Symlink to `~/.local/bin/feynman`. Lets you type `cheongram` instead of
-`feynman`. The agent's self-identification as 청람 comes from
-`.feynman/PERSONA.md`, not the command name — the symlink is just for
-typing ergonomics. See `personal/designs/2026-04-10-cheongram-personality.md`
-for the full personality design.
+A standalone bash wrapper (**not** a symlink to `feynman` anymore) that
+pins CWD to a user-specified research project directory before exec-ing
+the Pi runtime. Contrast with `~/.local/bin/feynman`:
+
+| | `feynman` | `cheongram` |
+|---|---|---|
+| Pinned CWD | `/home/jude/skills/feynman` (tooling repo) | user research project |
+| Intended for | feynman self-management (`doctor`, `setup`, `model`, `update`, `search`, `packages`) | research work |
+| Refuses to start inside feynman repo? | no | yes (hard exit 2) |
+
+Project-name resolution (first positional argument):
+
+- `/abs/path` → used as-is
+- `~/path` → `$HOME` expansion
+- `<name>` → `$HOME/research/<name>`
+- if the first arg isn't a directory, it's treated as a free-form prompt
+  and the launcher falls through to the current CWD
+
+Behavior:
+
+- `cheongram <project>` cd's into that directory, so feynman's relative
+  paths (`outputs/`, `notes/`, `experiments/`) resolve **into the research
+  project**, not into the feynman tooling repo. `src/pi/runtime.ts` uses
+  absolute paths so feynman's own `.feynman/`, `skills/`, `src/` are still
+  found.
+- `cheongram` with no project arg uses the current CWD — **unless** the
+  current CWD is inside `FEYNMAN_REPO`, in which case it hard-fails with
+  guidance to pick a project name or move out of the repo.
+- The wrapper duplicates the feynman wrapper's Node ABI auto-rebuild and
+  `PUPPETEER_EXECUTABLE_PATH` export, so either launcher keeps pi-memory
+  alive across a Node major upgrade.
+
+Rationale: the earlier symlink design left 청람 scribbling research
+artifacts directly into the feynman source tree (`experiments/`,
+`outputs/`, etc.), which polluted the tooling repo and broke upstream
+rebase ergonomics. The new wrapper enforces workspace separation at the
+CWD level; PERSONA.md's "작업 공간 규칙" section reinforces the same
+separation at the instruction level.
+
+See `personal/designs/2026-04-10-cheongram-personality.md` for the full
+personality design.
 
 ### 2. `~/.local/bin/xdg-open` — headless browser shim
 

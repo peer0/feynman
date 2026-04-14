@@ -6,7 +6,7 @@ the design doc and plan files referenced below.
 
 **Current phase**: Option A — observation period (started 2026-04-13)
 **Current branch**: `my-tweaks`
-**Last updated**: 2026-04-13
+**Last updated**: 2026-04-14
 
 ---
 
@@ -18,8 +18,8 @@ order before doing anything related to 청람:
 1. **`CLAUDE.md`** — repo-level architecture, fork topology, commands, the
    bootstrap sync trap, two-prompt-system layout. Read first.
 2. **`personal/my-setup.md`** — this machine's wiring: `~/.local/bin/feynman`
-   wrapper with auto-rebuild, `cheongram` symlink, xdg-open shim,
-   Chrome/pandoc user-local installs, alphaXiv OAuth flow.
+   wrapper with auto-rebuild, `cheongram` project-targeted wrapper,
+   xdg-open shim, Chrome/pandoc user-local installs, alphaXiv OAuth flow.
 3. **This file (`personal/cheongram-status.md`)** — project phase, deferred
    decisions, open questions. Read before proposing new work.
 4. **`personal/designs/2026-04-10-cheongram-personality.md`** — the full
@@ -40,12 +40,12 @@ Claude memory files auto-load and capture user-global preferences
 
 | Category | File | Role |
 |---|---|---|
-| Identity | `.feynman/PERSONA.md` | 9-section 청람 personality (identity, language, lab metaphor, disagreement, paper reading, cross-discipline, values, default workflow, seed discovery) |
+| Identity | `.feynman/PERSONA.md` | 10-section 청람 personality (identity, workspace, language, lab metaphor, disagreement, paper reading, cross-discipline, values, default workflow, seed discovery) |
 | Focus | `.feynman/FOCUS.md` | 6-month variable: current research focus, possible drifts, active seeds, projects, meta-rules |
 | Runtime | `src/pi/runtime.ts` | `buildPiArgs()` concatenates `SYSTEM.md + PERSONA.md + FOCUS.md` with `\n\n---\n\n` separator before passing to Pi as `--system-prompt` |
 | Runtime tests | `tests/pi-runtime.test.ts` | Three tests covering all-three-files, SYSTEM-only backwards compat, separator verification |
 | Subagents | `.feynman/agents/{researcher,reviewer,writer,verifier}.md` | Lab-peer preamble added after YAML frontmatter; upstream bodies preserved |
-| Docs | `personal/my-setup.md` | Machine wiring incl. cheongram symlink and auto-rebuild |
+| Docs | `personal/my-setup.md` | Machine wiring incl. cheongram project-targeted wrapper and auto-rebuild |
 | Design | `personal/designs/2026-04-10-cheongram-personality.md` | Full design spec |
 | Plan | `personal/plans/2026-04-13-cheongram-personality.md` | 7-task TDD plan (all tasks completed) |
 
@@ -54,7 +54,7 @@ Claude memory files auto-load and capture user-global preferences
 | Path | Role |
 |---|---|
 | `~/.local/bin/feynman` | Wrapper with auto-rebuild of `better-sqlite3` on Node ABI change |
-| `~/.local/bin/cheongram` | Symlink to `~/.local/bin/feynman` |
+| `~/.local/bin/cheongram` | Standalone bash wrapper — pins CWD to user research project (`~/research/<name>` or absolute path), refuses to start inside feynman repo, duplicates `feynman` wrapper's Node ABI auto-rebuild + Puppeteer env |
 | `~/.feynman/.state/last-known-node-abi` | Cache: most recently built-against Node `process.versions.modules` |
 
 ### Commit history on `my-tweaks` (for reference)
@@ -62,6 +62,25 @@ Claude memory files auto-load and capture user-global preferences
 The 청람 customization added ~10 commits on top of upstream. Run
 `git log main..my-tweaks --oneline` to see the current list — SHAs shift
 when rebasing onto new `main`, so do not cite SHAs in this document.
+
+### 2026-04-14 update — workspace separation enforced
+
+Added PERSONA.md §"작업 공간 규칙" and refactored `~/.local/bin/cheongram`
+from symlink to standalone project-targeted wrapper. Rationale: the
+prior setup allowed 청람 to scribble research artifacts directly into
+the feynman tooling repo, which polluted fork rebase ergonomics. The
+wrapper now pins CWD to a user-specified research project directory and
+hard-fails if invoked inside `/home/jude/skills/feynman/`; the PERSONA
+rule is the secondary safety net for cases where the wrapper is
+bypassed.
+
+As part of the same cleanup, session-1 of the parikh-steering
+autoresearch (originally committed on feynman's `parikh-steering`
+branch under `experiments/parikh-steering/`) was migrated to the
+dedicated research repo at `~/research/parikh-steer/` (remote:
+`git@github.com:peer0/parikh-steer.git`), and both the local and
+`origin/parikh-steering` references in feynman were deleted to keep the
+tooling repo clean.
 
 ---
 

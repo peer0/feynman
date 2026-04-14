@@ -55,6 +55,8 @@ There is **no global `feynman` on PATH from npm**. Instead, `~/.local/bin/feynma
 2. Runs `node_modules/.bin/tsx src/index.ts` directly against the checked-out tree — **no build step**; edits to `src/` are reflected on next invocation.
 3. Exports `PUPPETEER_EXECUTABLE_PATH` pointing at the user-local Chrome for Testing install under `~/.local/share/chrome-for-testing/...`.
 
+A **parallel `~/.local/bin/cheongram` wrapper** exists for research work. It pins CWD to a user-specified research project directory (`<name>` resolves to `~/research/<name>`, absolute paths accepted) and **refuses to start inside the feynman repo**. This enforces workspace separation: feynman source code stays in `/home/jude/skills/feynman`, research artifacts (experiments, notes, papers, data) live in `~/research/<project>`. Use `feynman` for tooling self-management (`doctor`, `setup`, `model`, `update`, `search`, `packages`); use `cheongram` for everything else. Full contract in `personal/my-setup.md`.
+
 Implications when iterating:
 
 - You don't need `npm run build` for the CLI to pick up local edits — just save the file and re-run `feynman`. Build is only needed when testing the packed/published bundle via `npm run start:dist` or `bin/feynman.js`.
