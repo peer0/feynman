@@ -74,6 +74,32 @@ A bash wrapper that exposes `feynman` on PATH:
 - Hard-fails with a clear message if `node_modules/.bin/tsx` is missing.
 - Warns (non-fatally) if `PUPPETEER_EXECUTABLE_PATH` points to a missing
   binary — fail-fast beats fail-silent for browser detection.
+- **Auto-rebuilds Pi's native modules when Node ABI changes.** Pi ships
+  `better-sqlite3` (used by `pi-memory`), a native module bound to a
+  specific Node ABI version (`process.versions.modules`). A system Node
+  major upgrade (v22 → v24) silently breaks the prebuilt binary, which
+  makes `pi-memory` fail with *"compiled against a different Node.js
+  version"* and disables `memory_remember` / `memory_search` /
+  `memory_lessons` tools.
+  - The wrapper caches the last known Node ABI at
+    `~/.feynman/.state/last-known-node-abi`.
+  - On every launch it compares the cached ABI with the current Node's
+    `process.versions.modules`. Match → skip instantly (zero cost).
+    Mismatch → run `npm rebuild better-sqlite3 --build-from-source`
+    inside `.feynman/npm/`, update the cache, then launch.
+  - Only rebuilds `better-sqlite3` — other native modules are not
+    currently managed here. If Pi adds more native deps later, extend
+    this block.
+  - Rebuild failure is non-fatal: the agent still launches, only memory
+    tools are degraded.
+
+### `~/.local/bin/cheongram` — aliased launcher
+
+Symlink to `~/.local/bin/feynman`. Lets you type `cheongram` instead of
+`feynman`. The agent's self-identification as 청람 comes from
+`.feynman/PERSONA.md`, not the command name — the symlink is just for
+typing ergonomics. See `personal/designs/2026-04-10-cheongram-personality.md`
+for the full personality design.
 
 ### 2. `~/.local/bin/xdg-open` — headless browser shim
 
