@@ -1,6 +1,6 @@
 ---
 description: Iterative review-revise loop with parallel adversarial reviewers, convergence-driven stopping, and per-round verification.
-args: <paper-path> [--venue <venue>] [--rounds <max>] [--reviewers <n>]
+args: <paper-path> --venue <venue> [options]
 section: Research Workflows
 topLevelCli: true
 ---
@@ -11,17 +11,58 @@ Run an iterative review-revise loop on: $@
 
 # Protocol
 
-## 0. Setup
+## 0. Setup — Argument Parsing
 
-Parse arguments:
-- `paper_path`: path to the main LaTeX file (required)
-- `venue`: one of `emnlp`, `acl`, `iclr`, `neurips`, `aaai`, `eacl`, `workshop` (ask if ambiguous)
-- `max_rounds`: default 5
-- `num_reviewers`: default 3, range 3–5
+Parse the invocation string. Display the resolved config to the user before starting.
+
+### Arguments
+
+| Argument | Required | Format | Default | Description |
+|----------|----------|--------|---------|-------------|
+| `paper-path` | **yes** | file path | — | Path to the main LaTeX file (e.g., `papers/latex/main.tex`). Must exist. |
+| `--venue` | **yes** | keyword | — | Target venue. Determines page limit, adversarial persona, and reviewer expectations. |
+| `--rounds` | no | integer 1–10 | `5` | Maximum review-revise iterations. Loop may stop earlier via convergence. |
+| `--reviewers` | no | integer 3–5 | `3` | Number of parallel reviewers per round. ≥4 always includes `advr` (adversarial venue reviewer). |
+| `--focus` | no | free text | — | Optional focus area for reviewers (e.g., `"calibration claim strength"`, `"related work completeness"`). Appended to every reviewer's prompt. |
+| `--mode` | no | keyword | `review-revise` | `review-revise`: full loop with fixes. `review-only`: review without modifying files. |
+| `--autonomy` | no | keyword | `full` | `full`: auto-apply all fixes, pause only on strategic decisions. `cautious`: pause before every MAJOR fix for user approval. |
+
+### Venue Keywords & Page Limits
+
+| Keyword | Full Name | Body Limit | Refs | Appendix | Adversarial Persona |
+|---------|-----------|-----------|------|----------|---------------------|
+| `emnlp` | EMNLP (long) | 8pp | unlimited | unlimited | NLP contribution focus |
+| `emnlp-short` | EMNLP (short) | 4pp | unlimited | 1pp | Conciseness + impact |
+| `acl` | ACL (long) | 8pp | unlimited | unlimited | Same as EMNLP |
+| `acl-short` | ACL (short) | 4pp | unlimited | 1pp | Same as EMNLP short |
+| `iclr` | ICLR | 9pp | unlimited | unlimited | Technical novelty + theory |
+| `neurips` | NeurIPS | 9pp | unlimited | unlimited | Broad ML + theory |
+| `aaai` | AAAI | 8pp (7+1 refs) | **included** | separate suppl. | AI breadth + rigor |
+| `eacl` | EACL (long) | 8pp | unlimited | unlimited | European NLP + multilingual |
+| `workshop` | Workshop paper | 4–8pp (varies) | varies | varies | Core idea soundness |
+
+If `--venue` is omitted, check the LaTeX source for venue clues (e.g., `\usepackage{acl}`, title comments). If ambiguous, ask the user.
+
+### Resolved Config Display
+
+Before starting the loop, display:
+
+```
+┌─ Review-Revise Loop ─────────────────────┐
+│ Paper:     papers/latex/main.tex          │
+│ Venue:     EMNLP (long) — 8pp body limit  │
+│ Rounds:    up to 5                        │
+│ Reviewers: 3 per round                   │
+│ Mode:      review-revise                  │
+│ Autonomy:  full                           │
+│ Focus:     (none)                         │
+└───────────────────────────────────────────┘
+Starting Round 1...
+```
 
 Derive a slug from the paper title for file naming.
 
-Create the Ralph task file at `.ralph/review-loop.md` with the template below, then start the Ralph loop.
+Create the Ralph task file at `.ralph/review-loop.md` with the template at the bottom of this document, then start the Ralph loop.
 
 ## 1. Each Iteration: REVIEW
 
@@ -220,3 +261,31 @@ The `advr` reviewer adopts a venue-specific persona:
 - **Verify after every edit.** A fix that breaks page budget or introduces a stale reference is worse than no fix.
 - **Respect the deadline.** If max_rounds is reached, deliver the best current state rather than blocking on perfection.
 - **When reviewers disagree, apply evidence.** If Reviewer A says "cut this paragraph" and Reviewer B says "expand it," check: does the paragraph support a contribution? If yes, keep; if not, cut. Don't average opinions.
+
+---
+
+# Usage Examples
+
+## Minimal (required args only)
+```
+/review-loop papers/latex/main.tex --venue emnlp
+```
+Runs 3 reviewers, up to 5 rounds, full autonomy, review-revise mode.
+
+## Full specification
+```
+/review-loop papers/latex/main.tex --venue iclr --rounds 4 --reviewers 5 --focus "theoretical contribution clarity"
+```
+5 reviewers (including adversarial ICLR reviewer), max 4 rounds, focused on theory.
+
+## Review-only (no edits)
+```
+/review-loop paper/main.tex --venue aaai --mode review-only --reviewers 4
+```
+Produces review reports without modifying any files. Useful for pre-submission assessment.
+
+## Cautious mode (approve each fix)
+```
+/review-loop papers/latex/main.tex --venue emnlp --autonomy cautious
+```
+Pauses before applying each MAJOR fix. User approves or rejects via numbered menu.

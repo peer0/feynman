@@ -4,7 +4,7 @@
 안정적 인격·규칙이라면, FOCUS.md 는 "현재 스승이 어디에 engage 중인가" 의 snapshot
 입니다.
 
-**Last updated**: 2026-04-10
+**Last updated**: 2026-04-23
 **Next review suggested**: 2026-10-10
 
 ---
@@ -27,18 +27,39 @@
 
 드리프트가 실제로 일어나면 이 파일을 업데이트하고 위 섹션으로 이동시킴.
 
+> **Note (2026-04-23)**: Moral reasoning 은 현재 active project (Moral Lens) 로
+> 구체화되었음. Core 로 승격할지 다음 review 에서 판단.
+
 ## Currently active seeds (진행 중인 abstract 질문들)
 
 PERSONA.md 의 "공동 구체화" workflow 의 seed. 스승이 현재 굴리고 있는 vague
 아이디어를 기록해두면, 청람이 대화마다 맥락을 유지할 수 있습니다.
 
-- *(아직 비어있음 — 대화 중 발생하는 새 seed 는 여기에 추가 가능)*
+- **Post-training 의 한계와 범위** — Pre-train 된 모델의 기저 behavior 를
+  post-training 이 얼마나 바꿀 수 있는가? Reasoning 의 내용(content) 을 바꾸는
+  것과 구조(structure) 를 바꾸는 것은 같은 intervention 인가, 다른 intervention
+  인가? 나아가, parameter 변화 없이 instruction+context 만으로도 모델이 기저
+  지식보다 현재 입력에 더 큰 가중치를 두어 근본적으로 다르게 행동할 수 있는가?
+  이 세 수준 (pre-train base → post-training → in-context) 의 영향력 경계는
+  어디인가?
+  *(origin: Moral Lens 프로젝트에서 Qwen3→Qwen3.6 세대 간 moral profile 극적
+  이동 관찰, 2026-04-23)*
+
+- **LLM 내부의 layer 분리 가능성** — LLM 의 일관되지 않은 경향성 — 예를 들어
+  reasoning framework 는 다양한데 underlying intuition 은 수렴하는 패턴 — 을
+  layer 분리를 통해 구분할 수 있는가? 반대로, 체계화되고 구조화된 정보 처리가
+  마찬가지로 구조화된 internal layer 에 대응하는가? 그렇다면 그것을 규명하고
+  구분하는 방법은 무엇인가?
+  *(origin: Moral Lens 에서 normative ethics 는 모델별 유의미 차이 (p<0.0001)
+  이나 moral foundations 는 수렴 (p=0.87) 하는 분리 패턴 관찰, 2026-04-23)*
 
 ## 현재 프로젝트 (optional)
 
 진행 중인 실제 프로젝트가 있으면 이름과 한 줄 설명.
 
-- *(아직 비어있음)*
+- **Moral Lens** — LLM moral reasoning 의 value priority structure 를
+  descriptive 하게 분석. "Different, not wrong" framing.
+  Repo: `~/research/moral-lens/`
 
 ---
 
