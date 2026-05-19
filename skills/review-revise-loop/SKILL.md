@@ -40,7 +40,7 @@ Run the `/review-loop` workflow. Read the prompt template at `../prompts/review-
 4. **VERIFY**: compile + page budget + cite integrity + git commit
 5. **SCORE REPORT**: per-round score card with venue-native scales and trend tracking
 6. **REPEAT** until convergence or max rounds
-7. **FINAL REPORT**: remaining experiment recommendations if paper edits alone are insufficient
+7. **FINAL REPORT**: score trajectory, experiment gap report, and **rebuttal strategy document**
 
 ## Key Design Decisions
 
@@ -48,6 +48,7 @@ Run the `/review-loop` workflow. Read the prompt template at `../prompts/review-
 - **Venue-native scoring** — ARR uses 1–5 (0.5 steps), ICLR uses 1–10, ICML/NeurIPS use 1–6, AAAI uses −3 to +3. Reviewers score on the actual scale of the target venue.
 - **Score tracking** — each round produces a score card showing individual + meta-reviewer scores and the trend across rounds.
 - **Experiment gap report** — when issues cannot be fixed by editing alone (e.g., missing ablations, additional baselines, case studies), these are collected and reported as an actionable experiment plan at loop end.
+- **Rebuttal strategy document** — remaining concerns are transformed into a structured rebuttal plan with evidence-backed response skeletons, ordered by risk. Based on empirical findings that rebuttal is the decisive phase for borderline papers (Jung et al., ICLR 2026).
 
 Agents used: `reviewer` (×(N−1) per round), `meta-reviewer` (×1 per round)
 

@@ -175,6 +175,45 @@ Unresolved items with deferral rationale.
 ### D. One-paragraph Summary
 Paper state + acceptance estimate.
 
+### E. Rebuttal Strategy Document
+
+Produce a structured rebuttal plan for the actual review phase. The loop has already generated all raw material — reviewer concerns, severity, what was fixed, what remains. Transform this into an actionable rebuttal document.
+
+**Empirical basis** (Jung et al., "What Drives Paper Acceptance?", ICLR 2026): Rebuttal is the decisive phase for borderline papers. Evidence-backed clarification is the most effective strategy; generic/vague defense and evasive stance are the least effective. Score increases after rebuttal correlate with 55.7% acceptance vs 7.8% for unchanged scores.
+
+For each remaining concern (from rounds where the concern was raised but not fully resolved by editing):
+
+```markdown
+#### Concern: {one-line summary}
+- **Source**: R{round}, {reviewer_id} ({angle}), severity: {MAJOR/MINOR}
+- **Status**: {partially addressed / deferred / requires experiment result}
+- **Recommended strategy**: {one of the strategies below}
+- **Response skeleton**:
+  > {2-4 sentence draft response, evidence-backed}
+- **Supporting evidence**: {point to specific section, table, figure, or planned experiment}
+```
+
+**Strategy taxonomy** (from Kargaran et al., arXiv 2511.15462):
+
+| Strategy | When to use | Effectiveness |
+|----------|-------------|---------------|
+| Evidence-backed clarification | Reviewer missed or misread existing content | ★★★ Most effective |
+| New result reference | Experiment gap was filled during/after loop | ★★★ |
+| Concede & scope | Concern is valid but bounded; acknowledge + clarify scope | ★★ |
+| Bare acknowledgment | Reviewer is correct, fix was applied in revision | ★★ |
+| Redirect to section | Answer exists but reviewer didn't find it | ★★ |
+
+**Anti-patterns to flag** (warn the author if a response skeleton drifts toward these):
+- ❌ Generic/vague defense: "We believe our approach is sound" without specific evidence
+- ❌ Evasive stance: not directly addressing the concern
+- ❌ Excessive length: optimal rebuttal depth is 2-3 exchanges, not exhaustive essays
+- ❌ Arguing tone: combative language correlates with score decreases
+
+**Structure the document as a ready-to-use rebuttal draft**, ordered by:
+1. Concerns from the lowest-scoring reviewer first (highest risk of blocking acceptance)
+2. MAJOR concerns before MINOR
+3. Cross-reviewer concerns (raised by multiple reviewers) flagged as highest priority
+
 ---
 
 # 7. Experiment Gap Tracking
