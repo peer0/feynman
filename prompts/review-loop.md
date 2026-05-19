@@ -25,6 +25,8 @@ If `--venue` omitted, infer from LaTeX source or ask.
 
 Display resolved config before starting, then create Ralph task from template (§9) and begin.
 
+When calling `ralph_start`, set `maxIterations` to **the user's `--rounds` value + 1** (the +1 accounts for the final verification round). For example, `--rounds 3` → `maxIterations: 4`.
+
 ---
 
 # 1. Venue Table — Limits & Scoring
